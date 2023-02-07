@@ -4,14 +4,17 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList } from 'r
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 
-export default function ChosenTask({ navigation, GlobalState }) {
-    const { chosenTask } = GlobalState;
+export default function ChosenOffer({ navigation, GlobalState }) {
+    const { chosenOffer } = GlobalState;
 
     return (
         <View style={styles.screen}>
             <Header />
             <View style={styles.body}>
-                <Text>{chosenTask.task}</Text>
+                <Text>{chosenOffer.offerTitle}</Text>
+                <Text>{chosenOffer.offerAuthor}</Text>  
+                <Text>{chosenOffer.offerText}</Text>
+                <Text></Text>
             </View>
             <Footer navigation={navigation} />
         </View>

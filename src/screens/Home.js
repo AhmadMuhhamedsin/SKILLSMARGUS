@@ -1,60 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList, AsyncStorage } from 'react-native';
 
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 
 export default function Home({ navigation, GlobalState }) {
-    const { toDoList, setToDoList, task, setTask, setChosenTask } = GlobalState;
-
+    const {
+      allOffers,
+      setAllOffers,
+      offer,
+      offerAuthor,
+      setOfferAuthor,
+      setOffer,
+      setOfferText,
+      setOfferTitle,
+      offerTitle,
+      offerText,
+      setChosenOffer,
+      chosenOffer
+    } = GlobalState;
+  
+    const [loadedOffers, setLoadedOffers] = useState([]);
+  
     useEffect(() => {
-        setToDoList(prevState => [...prevState, { id: 2, task: 'go to bed' }])
-    }, [])
-
+      const loadOffers = async () => {
+        try {
+          const storedOffers = await AsyncStorage.getItem('allOffers');
+          if (storedOffers) {
+            setLoadedOffers(JSON.parse(storedOffers));
+          }
+        } catch (error) {
+          console.error('Error loading offers', error);
+        }
+      };
+  
+      loadOffers();
+    }, []);
+  
+    useEffect(() => {
+      setAllOffers(prevState => [...prevState, { offerId: 2, offer: 'go to bed' }]);
+    }, []);
+  
+    useEffect(() => {
+      AsyncStorage.setItem('allOffers', JSON.stringify(allOffers));
+    }, [allOffers]);
+  
     const renderItem = ({ item }) => {
-        return (
-            <TouchableOpacity
-                style={styles.task}
-                onPress={() => handleChooseTask(item)}
-            >
-                <Text>{item.task}</Text>
+      return (
+        <View style={styles.offerContainer}>
+            <TouchableOpacity style={styles.offer} onPress={() => handleChooseOffer(item)}>
+                <Text style={styles.offerTitle}>{item.offerTitle}</Text>
+                <Text style={styles.offerText}>{item.offerText}</Text>
             </TouchableOpacity>
-        ) 
-    }
+            <TouchableOpacity 
+                style={styles.deleteButton}
+                onPress={() => handleDeleteOffer(item)}
+            >
+                <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+        </View>
+      );
+    };
 
-    const handleSaveTask = () => {
-        const index = toDoList.length + 1;
+    const handleDeleteOffer = item => {
+        setAllOffers(prevState => prevState.filter(offer => offer.offerId !== item.offerId));
+      };
 
-        setToDoList(prevState => [...prevState, { id: index, task: task }]);
-
-        setTask('');
-    }
-
-    const handleChooseTask = (item) => {
-        setChosenTask(item);
-        navigation.navigate('ChosenTask');
-    }
+    const handleSaveOffer = () => {
+      const index = allOffers.length + 1;
+  
+      setAllOffers(prevState => [
+        ...prevState,
+        { offerId: index, offer: offer, offerAuthor: offerAuthor, offerTitle: offerTitle, offerText:offerText }
+      ]);
+  
+      setOffer('');
+      setOfferAuthor('');
+      setOfferTitle('');
+      setOfferText('');
+    };
+  
+    const handleChooseOffer = item => {
+      setChosenOffer(item);
+      navigation.navigate('ChosenOffer');
+    };
 
     return (
         <View style={styles.screen}>
             <Header />
             <View style={styles.body}>
-                <TextInput 
+                <TextInput
                     style={styles.input}
-                    onChangeText={setTask}
-                    value={task}
-                    placeholder="To do task..."
+                    onChangeText={setOfferAuthor}
+                    value={offerAuthor}
+                    placeholder="Add Name..."
+                    />
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setOfferTitle}
+                    value={offerTitle}
+                    placeholder="Add offer title..."
+                    />
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setOfferText}
+                    value={offerText}
+                    placeholder="Add offer..."
                 />
                 <TouchableOpacity 
                     style={styles.button}
-                    onPress={() => handleSaveTask()}
+                    onPress={() => handleSaveOffer()}
                 >
                     <Text style={styles.buttonText} >Submit</Text>
                 </TouchableOpacity>
                 <FlatList 
-                    data={toDoList}
+                    data={allOffers}
                     renderItem={renderItem}
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => item.offerId}
                 />
             </View>
             <Footer navigation={navigation} />
@@ -74,7 +136,7 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#14141410'
     },
-    task: {
+    offer: {
         backgroundColor: 'white',
         padding: 10,
         margin: 10,
@@ -88,6 +150,12 @@ const styles = StyleSheet.create({
         shadowRadius: 2.62,
         elevation: 4,
     },
+    offerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 10,
+      },
     input: {
         backgroundColor: 'white',
         padding: 15,
@@ -126,5 +194,24 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white',
         fontWeight: '900'
-    }
+    },
+    deleteButton: {
+        backgroundColor: 'red',
+        padding: 10,
+        margin: 5,
+        borderRadius: 5,
+        alignSelf: 'flex-end',
+      },
+    deleteButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+    offerTitle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginRight: 10,
+      },
+      offerText: {
+        fontSize: 12,
+      },
 })

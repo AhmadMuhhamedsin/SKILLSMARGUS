@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 export default function Header() {
     return (
         <View style={styles.header}>
-            <Text style={styles.text}>My To Do List</Text>
+            <Text style={styles.text}>Mini Offer demo</Text>
         </View>
     )
 }
