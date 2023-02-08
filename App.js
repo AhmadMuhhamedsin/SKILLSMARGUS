@@ -5,7 +5,8 @@ import registerNNPushToken from 'native-notify';
 
 import Home from './src/screens/Home';
 import ChosenOffer from './src/screens/ChosenOffer';
-
+import Login from './src/screens/Welcome';
+import Register from './src/screens/Register';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -103,7 +104,12 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-
+        <Stack.Screen name="Register" options={{ headerShown: false }}>
+          {props => <Register {...props} GlobalState={GlobalState} />}
+        </Stack.Screen>
+        <Stack.Screen name="Login" options={{ headerShown: false }}>
+          {props => <Login {...props} GlobalState={GlobalState} />}
+        </Stack.Screen>
         <Stack.Screen name="Home" options={{ headerShown: false }}>
           {props => <Home {...props} GlobalState={GlobalState} />}
         </Stack.Screen>
